@@ -75,7 +75,6 @@ function JMod.InitGlobalConfig(forceNew)
 		RadioSpecs={
 			DeliveryTimeMult=1,
 			ParachuteDragMult=1,
-			StartingOutpostCount=1,
 			AvailablePackages={
 				["parts"]={
 					"5 boxes of 100 parts each used for crafting and repairs.",
@@ -86,7 +85,7 @@ function JMod.InitGlobalConfig(forceNew)
 					{"ent_jack_gmod_ezadvparts",2}
 				},
 				["advanced textiles"]={
-					"2 boxes of 20 advparts each used for crafting and upgrading.",
+					"2 boxes of 20 advtextiles each used for crafting equipment.",
 					{"ent_jack_gmod_ezadvtextiles",2}
 				},
 				["batteries"]={
@@ -141,7 +140,10 @@ function JMod.InitGlobalConfig(forceNew)
 					"A box used for storing exclusively Jmod items. Holds up to 100 kg of Jmod items.",
 					"ent_jack_gmod_ezcrate"
 				},
-				
+				["storage crate"]={
+					"A box used for exclusively storing EZ Resources.",
+					"ent_jack_gmod_ezcrate_uni"
+				},
 				["frag grenades"]={
 					"10 frag grenades used for explosions.",
 					{"ent_jack_gmod_ezfragnade",10}
@@ -194,15 +196,11 @@ function JMod.InitGlobalConfig(forceNew)
 				},
 				["sentry"]={
 					"Shoots enemies so you don't have to! Just remember to refill the ammo and power.",
-					"ent_jack_gmod_ezsentry"
+					"ent_jack_gmod_ezsentry", 1
 				},
 				["supply radio"]={
-					"Order more supplies for free. Just place it outside and watch for the package.",
-					"ent_jack_gmod_ezaidradio"
-				},
-				["storage crate"]={
-					"A box used for exclusively storing EZ Resources.",
-					"ent_jack_gmod_ezcrate_uni"
+					"Shoots enemies so you don't have to! Just remember to refill the ammo and power.",
+					"ent_jack_gmod_ezaidradio", 1
 				},
 				["medkits"]={
 					"3 medical kits that use medical supplies to heal players.",
@@ -233,12 +231,12 @@ function JMod.InitGlobalConfig(forceNew)
 					{"ent_jack_gmod_ezslam",5}
 				},
 				["antimatter"]={
-					"An experimental canister used for crafting experimental items.",
-					"ent_jack_gmod_ezantimatter"
+					"5 SLAMs that can be planted on walls.",
+					"ent_jack_gmod_ezantimatter", 1
 				},
 				["fissile material"]={
-					"A box filled with fissile material used to craft nuclear devices.",
-					"ent_jack_gmod_ezfissilematerial"
+					"A box filled with fissile material used to craft nuclear devices..",
+					"ent_jack_gmod_ezfissilematerial", 1
 				},
 				["dynamite"]={
 					"12 dynamite sticks for comical explosions.",
@@ -253,7 +251,7 @@ function JMod.InitGlobalConfig(forceNew)
 					{"ent_jack_gmod_ezpowderkeg",4}
 				},
 				["smoke grenades"]={	
-					"4 smoke grenades to signal smokes and 4 signal grenades which emit a colourable smoke to help signal positions.",
+					"4 smoke grenades to signal smokes and 4 signal grenades which emits a colourable smoke to help signal positions.",
 					{"ent_jack_gmod_ezsmokenade",4},
 					{"ent_jack_gmod_ezsignalnade",4}
 				},
