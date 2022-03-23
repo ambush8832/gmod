@@ -473,6 +473,22 @@ function JMod.InitGlobalConfig(forceNew)
 				["big bomb"] = {
 					"An airstrike of a single large 'iron' bomb.",
 					{"ent_jack_gmod_ezbigbomb", 1}
+				},
+				["cluster bomb"] = {
+					"Drops cluster bomb on target", 
+					{"ent_jack_gmod_ezclusterbomb", 1}
+				},
+				["incendiary bomb"] = {
+					"Drops incendiary bombs on target", 
+					{"ent_jack_gmod_ezincendiarybomb", 2}
+				},
+				["thermobaric bomb"] = {
+					"Drops thermobaric bomb on target", 
+					{"ent_jack_gmod_ezthermobaricbomb", 1}
+				},
+				["nano nuke"] = {
+					"Drops nano nuke on target",
+					{"ent_jack_gmod_eznuke_small",1}
 				}
 			},
 
