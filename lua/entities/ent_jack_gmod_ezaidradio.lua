@@ -253,16 +253,16 @@ if(SERVER)then
 		if(State<2)then return end
 		if not(self:UserIsAuthorized(ply))then return end
 		txt=string.lower(txt)
-		local NormalReq,BFFreq=string.sub(txt,1,14)=="supply radio: ",string.sub(txt,1,6)=="heyo: "
+		local NormalReq,BFFreq=string.sub(txt,1,7)=="radio: ",string.sub(txt,1,6)=="heyo: "
 		if((NormalReq)or(BFFreq))then
-			local Name,ParrotPhrase=string.sub(txt,15),txt
+			local Name,ParrotPhrase=string.sub(txt,8),txt
 			if(BFFreq)then
 				Name=string.sub(txt,7)
 			end
 			if(Name=="help")then
 				if(State==2)then
 					--local Msg,Num='stand near radio\nsay in chat: "status", or "supply radio: [package]"\navailable packages are:\n',1
-					local Msg,Num='stand near radio and say in chat "supply radio: status", or "supply radio: [package]". available packages are:',1
+					local Msg,Num='stand near radio and say in chat "radio: status", or "radio: [package]". available packages are:',1
 					self:Speak(Msg,ParrotPhrase)
 					local str = ""
 					for name,items in pairs(JMod.Config.RadioSpecs.AvailablePackages) do
@@ -368,7 +368,7 @@ elseif(CLIENT)then
 				draw.SimpleTextOutlined("Power: "..math.Round(ElecFrac*100).."%","JMod-Display",0,70,Color(R,G,B,Opacity),TEXT_ALIGN_CENTER,TEXT_ALIGN_TOP,2,Color(0,0,0,Opacity))
 				draw.SimpleTextOutlined(StateMsgs[State],"JMod-Display",0,100,Color(255,255,255,Opacity),TEXT_ALIGN_CENTER,TEXT_ALIGN_TOP,2,Color(0,0,0,Opacity))
 				if(State==JMod.EZ_STATION_STATE_READY)then
-					draw.SimpleTextOutlined('say "supply radio: help"',"JMod-Display-S",0,140,Color(255,255,255,Opacity/2),TEXT_ALIGN_CENTER,TEXT_ALIGN_TOP,1,Color(0,0,0,Opacity/2))
+					draw.SimpleTextOutlined('say "radio: help"',"JMod-Display-S",0,140,Color(255,255,255,Opacity/2),TEXT_ALIGN_CENTER,TEXT_ALIGN_TOP,1,Color(0,0,0,Opacity/2))
 				end
 				cam.End3D2D()
 			end
