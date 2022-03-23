@@ -10,7 +10,7 @@ end
 function JMod.InitGlobalConfig(forceNew)
 	local NewConfig={
 		Author="Jackarunda",
-		Version=38,
+		Version=38.5,
 		Note="radio packages must have all lower-case names, see http://wiki.garrysmod.com/page/Enums/IN for key numbers",
 		Hints=true,
 		AltFunctionKey=IN_WALK,
@@ -457,10 +457,26 @@ function JMod.InitGlobalConfig(forceNew)
 				},
                 ["glass"]={
 					"Glass in a quantity of 200, used in basic parts.",
-					{"ent_jack_gmod_ezglass",2}
+					{"ent_jack_gmod_ezglass", 2}
 				},
                 
 			},
+
+			AvailableAirstrikes = {
+				["small bomb strike"] = {
+					"An airstrike of multiple small 'iron' bombs",
+					{"ent_jack_gmod_ezsmallbomb", 4}
+				},
+				["medium bomb strike"] = {
+					"An airstrike of multiple 'iron' bombs",
+					{"ent_jack_gmod_ezbomb", 2}
+				},
+				["big bomb strike"] = {
+					"An airstrike of a single large 'iron' bomb",
+					{"ent_jack_gmod_ezbigbomb", 1}
+				}
+			},
+
 			RestrictedPackages={"antimatter","fissile material"},
 			RestrictedPackageShipTime=600,
 			RestrictedPackagesAllowed=true

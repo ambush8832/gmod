@@ -81,6 +81,11 @@ if(SERVER)then
 							net.WriteString(k)
 							net.WriteString(v[1])
 						end
+						net.WriteUInt(table.Count(JMod.Config.RadioSpecs.AvailableAirstrikes), 8)
+						for k, v in pairs(JMod.Config.RadioSpecs.AvailableAirstrikes) do
+							net.WriteString(k)
+							net.WriteString(v[1])
+						end
 						net.WriteEntity(self)
 						net.WriteString(JMod.EZradioStatus(self,self:GetOutpostID(),activator,false))
 					net.Send(activator)
