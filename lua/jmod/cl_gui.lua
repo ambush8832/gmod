@@ -773,14 +773,17 @@ net.Receive("JMod_EZradio",function()
 		table.insert(Packages, {net.ReadString(),net.ReadString()})	
 	end
 	table.sort(Packages,function(a,b) return a[1]<b[1] end)
-	for i = 1, count do
+
+	--Airstrikes here \/ ----------
+	local AScount = net.ReadUInt(9)
+	for i = 1, AScount do
 		table.insert(Strikes, {net.ReadString(),net.ReadString()})
 	end
 	table.sort(Strikes,function(a,b) return a[1]<b[1] end)
 	local Radio = net.ReadEntity()
 	local StatusText = net.ReadString()
 	local motherFrame = vgui.Create("DFrame")
-	motherFrame:SetSize(800, 350)
+	motherFrame:SetSize(600, 350)
 	motherFrame:SetVisible(true)
 	motherFrame:SetDraggable(true)
 	motherFrame:ShowCloseButton(true)
@@ -796,8 +799,8 @@ net.Receive("JMod_EZradio",function()
 	end
 	
 	local Frame,W,H,Myself=vgui.Create("DPanel", motherFrame),200,300,LocalPlayer()
-	Frame:SetPos(110,30)
-	Frame:SetSize(W,H-30)
+	Frame:SetPos(110, 40)
+	Frame:SetSize(W,H-25)
 	Frame.OnClose=function()
 		if resFrame then resFrame:Close() end
 		if motherFrame then motherFrame:Close() end
@@ -822,13 +825,13 @@ net.Receive("JMod_EZradio",function()
 	end
 
 	local Scroll = vgui.Create("DScrollPanel", Frame)
-	Scroll:SetSize(W-15,H-10)
+	Scroll:SetSize(W-15,H-40)
 	Scroll:SetPos(10,10)
 	
 	for _, k in pairs(Packages) do
 		local Butt = Scroll:Add("DButton")
-		local desc=k[2] or "N/A"
-		Butt:SetSize(W-35,25)
+		local desc = k[2] or "N/A"
+		Butt:SetSize(W-35, 25)
 		Butt:Dock(TOP)
 		Butt:DockMargin( 0, 0, 0, 5 )
 		Butt:SetText("")
@@ -836,45 +839,18 @@ net.Receive("JMod_EZradio",function()
 		function Butt:Paint(w,h)
 			surface.SetDrawColor(50,50,50,100)
 			surface.DrawRect(0,0,w,h)
-			local msg=k[1]		
-			draw.SimpleText(msg,"DermaDefault",5,3,Color(255,255,255,255),TEXT_ALIGN_LEFT,TEXT_ALIGN_TOP)
+			local msg = k[1]		
+			draw.SimpleText(msg .. " package","DermaDefault",5,3,Color(255,255,255,255),TEXT_ALIGN_LEFT,TEXT_ALIGN_TOP)
 		end
 		function Butt:DoClick()
-			LocalPlayer():ConCommand("say supply radio: " .. k[1] .. "")
+			LocalPlayer():ConCommand("say supply radio: " .. k[1] .. " package")
 			motherFrame:Close()
 		end
 	end
-	--[[ -- what the fuck even is this, keksquad?
-	for _, k in pairs(Favs) do
-		local Butt = Scroll:Add("DButton")
-		local desc=k[2] or "N/A"
-		Butt:SetSize(W-35,25)
-		Butt:Dock(TOP)
-		Butt:DockMargin( 0, 0, 0, 5 )
-		Butt:SetText("")
-		Butt:SetToolTip(desc)	
-		function Butt:Paint(w,h)
-			surface.SetDrawColor(50,50,50,100)
-			surface.DrawRect(0,0,w,h)
-			local msg=k[1]		
-			draw.SimpleText(msg,"DermaDefault",5,3,Color(255,255,255,255),TEXT_ALIGN_LEFT,TEXT_ALIGN_TOP)
-		end
-		function Butt:DoClick()
-			LocalPlayer():ConCommand("say supply radio: " .. k[1] .. "")
-			motherFrame:Close()
-		end
-	end
-	--]]
-	-- The last one always gets cut off so instead of finding the reason let's just slap a filler on
-	local Butt = Scroll:Add("DButton")
-	Butt:SetSize(W-35,25)
-	Butt:Dock(TOP)
-	Butt:DockMargin( 0, 0, 0, 5 )
-	Butt:SetText("")
-
+	--Airstrikes Panel here \/ ----------
 	local ASFrame, W, H, Myself = vgui.Create("DPanel", motherFrame), 200, 300, LocalPlayer()
-	ASFrame:SetPos(330, 30)
-	ASFrame:SetSize(W, H - 30)
+	ASFrame:SetPos(330, 40)
+	ASFrame:SetSize(W, H-25)
 	ASFrame.OnClose = function()
 		if resFrame then resFrame:Close() end
 		if motherFrame then motherFrame:Close() end
@@ -885,12 +861,12 @@ net.Receive("JMod_EZradio",function()
 	end
 
 	local ASScroll = vgui.Create("DScrollPanel", ASFrame)
-	ASScroll:SetSize(W-15,H-10)
-	ASScroll:SetPos(10,10)
+	ASScroll:SetSize(W-15, H-35)
+	ASScroll:SetPos(10, 10)
 
 	for _, k in pairs(Strikes) do
 		local Butt = ASScroll:Add("DButton")
-		local desc=k[2] or "N/A"
+		local desc = k[2] or "N/A"
 		Butt:SetSize(W-35, 25)
 		Butt:Dock(TOP)
 		Butt:DockMargin( 0, 0, 0, 5 )
@@ -900,19 +876,13 @@ net.Receive("JMod_EZradio",function()
 			surface.SetDrawColor(50, 50, 50, 100)
 			surface.DrawRect(0, 0, w, h)
 			local msg = k[1]		
-			draw.SimpleText(msg, "DermaDefault", 5, 3, Color(255,255,255,255), TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP)
+			draw.SimpleText(msg .. " strike", "DermaDefault", 5, 3, Color(255,255,255,255), TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP)
 		end
 		function Butt:DoClick()
-			LocalPlayer():ConCommand("say supply radio: " .. k[1] .. "")
+			LocalPlayer():ConCommand("say supply radio: " .. k[1] .. " strike")
 			motherFrame:Close()
 		end
 	end
-
-	local Butt = ASScroll:Add("DButton")
-	Butt:SetSize(W-35,25)
-	Butt:Dock(TOP)
-	Butt:DockMargin( 0, 0, 0, 5 )
-	Butt:SetText("")
 end)
 local function GetItemInSlot(armorTable,slot)
 	if not(armorTable and armorTable.items)then return nil end

@@ -461,18 +461,17 @@ function JMod.InitGlobalConfig(forceNew)
 				},
                 
 			},
-
 			AvailableAirstrikes = {
-				["small bomb strike"] = {
-					"An airstrike of multiple small 'iron' bombs",
+				["small bomb"] = {
+					"An airstrike of multiple small 'iron' bombs.",
 					{"ent_jack_gmod_ezsmallbomb", 4}
 				},
-				["medium bomb strike"] = {
-					"An airstrike of multiple 'iron' bombs",
+				["medium bomb"] = {
+					"An airstrike of multiple 'iron' bombs.",
 					{"ent_jack_gmod_ezbomb", 2}
 				},
-				["big bomb strike"] = {
-					"An airstrike of a single large 'iron' bomb",
+				["big bomb"] = {
+					"An airstrike of a single large 'iron' bomb.",
 					{"ent_jack_gmod_ezbigbomb", 1}
 				}
 			},
