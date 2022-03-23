@@ -783,7 +783,7 @@ net.Receive("JMod_EZradio",function()
 	local Radio = net.ReadEntity()
 	local StatusText = net.ReadString()
 	local motherFrame = vgui.Create("DFrame")
-	motherFrame:SetSize(600, 350)
+	motherFrame:SetSize(800, 350)
 	motherFrame:SetVisible(true)
 	motherFrame:SetDraggable(true)
 	motherFrame:ShowCloseButton(true)
@@ -798,17 +798,6 @@ net.Receive("JMod_EZradio",function()
 		if key==KEY_Q or key==KEY_ESCAPE or key == KEY_E then self:Close() end
 	end
 	
-	local Frame,W,H,Myself=vgui.Create("DPanel", motherFrame),200,300,LocalPlayer()
-	Frame:SetPos(110, 40)
-	Frame:SetSize(W,H-25)
-	Frame.OnClose=function()
-		if resFrame then resFrame:Close() end
-		if motherFrame then motherFrame:Close() end
-	end
-	function Frame:Paint(w,h)
-		surface.SetDrawColor(50,50,50,100)
-		surface.DrawRect(0,0,w,h)
-	end
 	
 	local StatusButton=vgui.Create("DButton", motherFrame)
 	StatusButton:SetSize(90,30)
@@ -820,13 +809,30 @@ net.Receive("JMod_EZradio",function()
 		draw.SimpleText("Status","DermaDefault",45,15,Color(255,255,255,255),TEXT_ALIGN_CENTER,TEXT_ALIGN_CENTER)
 	end
 	function StatusButton:DoClick()
-		LocalPlayer():ConCommand("say supply radio: status")
+		LocalPlayer():ConCommand("say radio: status")
 		motherFrame:Close()
 	end
 
+	local Frame,W,H,Myself=vgui.Create("DPanel", motherFrame),200,300,LocalPlayer()
+	Frame:SetPos(110, 35)
+	Frame:SetSize(W,H-20)
+	Frame.OnClose=function()
+		if resFrame then resFrame:Close() end
+		if motherFrame then motherFrame:Close() end
+	end
+	function Frame:Paint(w,h)
+		surface.SetDrawColor(50,50,50,100)
+		surface.DrawRect(0,0,w,h)
+	end
+
+	Label = vgui.Create( "DLabel", Frame )
+	Label:SetPos( W/2 - Label:GetWide()/2, 0 )
+	Label:SetText("Packages:")
+	Label:SizeToContents()
+
 	local Scroll = vgui.Create("DScrollPanel", Frame)
 	Scroll:SetSize(W-15,H-40)
-	Scroll:SetPos(10,10)
+	Scroll:SetPos(10,12)
 	
 	for _, k in pairs(Packages) do
 		local Butt = Scroll:Add("DButton")
@@ -843,14 +849,14 @@ net.Receive("JMod_EZradio",function()
 			draw.SimpleText(msg .. " package","DermaDefault",5,3,Color(255,255,255,255),TEXT_ALIGN_LEFT,TEXT_ALIGN_TOP)
 		end
 		function Butt:DoClick()
-			LocalPlayer():ConCommand("say supply radio: " .. k[1] .. " package")
+			LocalPlayer():ConCommand("say radio: " .. k[1] .. " package")
 			motherFrame:Close()
 		end
 	end
 	--Airstrikes Panel here \/ ----------
 	local ASFrame, W, H, Myself = vgui.Create("DPanel", motherFrame), 200, 300, LocalPlayer()
-	ASFrame:SetPos(330, 40)
-	ASFrame:SetSize(W, H-25)
+	ASFrame:SetPos(330, 35)
+	ASFrame:SetSize(W, H-20)
 	ASFrame.OnClose = function()
 		if resFrame then resFrame:Close() end
 		if motherFrame then motherFrame:Close() end
@@ -860,9 +866,14 @@ net.Receive("JMod_EZradio",function()
 		surface.DrawRect(0, 0, w, h)
 	end
 
+	ASLabel = vgui.Create( "DLabel", ASFrame )
+	ASLabel:SetPos( W/2 - Label:GetWide()/2, 0 )
+	ASLabel:SetText("Airstrikes:")
+	ASLabel:SizeToContents()
+
 	local ASScroll = vgui.Create("DScrollPanel", ASFrame)
 	ASScroll:SetSize(W-15, H-35)
-	ASScroll:SetPos(10, 10)
+	ASScroll:SetPos(10, 12)
 
 	for _, k in pairs(Strikes) do
 		local Butt = ASScroll:Add("DButton")
@@ -883,6 +894,11 @@ net.Receive("JMod_EZradio",function()
 			motherFrame:Close()
 		end
 	end
+	--Help text here \/ -----------
+	helpLabel = vgui.Create( "DLabel", motherFrame )
+	helpLabel:SetPos( 550, 40 )
+	helpLabel:SetText("Help - \n\n Packages: Smoke signal not necessary, \n but can help for accuracy. \n\n Strikes: Plane will circle area until \n smoke signal or coordinates are specified.")
+	helpLabel:SizeToContents()
 end)
 local function GetItemInSlot(armorTable,slot)
 	if not(armorTable and armorTable.items)then return nil end
