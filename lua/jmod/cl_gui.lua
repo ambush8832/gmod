@@ -765,6 +765,7 @@ net.Receive("JMod_EZradio",function()
 		end
 		return
 	end
+	local Strikes
 	local Packages={}
 	local Favs = {}
 	local count = net.ReadUInt(8)
@@ -775,7 +776,7 @@ net.Receive("JMod_EZradio",function()
 	local Radio=net.ReadEntity()
 	local StatusText = net.ReadString()
 	local motherFrame = vgui.Create("DFrame")
-	motherFrame:SetSize(500, 350)
+	motherFrame:SetSize(800, 350)
 	motherFrame:SetVisible(true)
 	motherFrame:SetDraggable(true)
 	motherFrame:ShowCloseButton(true)
@@ -816,7 +817,7 @@ net.Receive("JMod_EZradio",function()
 		motherFrame:Close()
 	end
 
-	local Scroll=vgui.Create("DScrollPanel",Frame)
+	local Scroll = vgui.Create("DScrollPanel", Frame)
 	Scroll:SetSize(W-15,H-10)
 	Scroll:SetPos(10,10)
 	
@@ -866,6 +867,30 @@ net.Receive("JMod_EZradio",function()
 	Butt:Dock(TOP)
 	Butt:DockMargin( 0, 0, 0, 5 )
 	Butt:SetText("")
+
+	local ASScroll = vgui.Create("DScrollPanel", motherFrame)
+	ASScroll:SetSize(W-15, H-10)
+	ASScroll:SetPos(200, 10)
+
+	for _, k in pairs(Packages) do
+		local Butt = ASScroll:Add("DButton")
+		local desc=k[2] or "N/A"
+		Butt:SetSize(W-35, 25)
+		Butt:Dock(TOP)
+		Butt:DockMargin( 0, 0, 0, 5 )
+		Butt:SetText("")
+		Butt:SetToolTip(desc)	
+		function Butt:Paint(w,h)
+			surface.SetDrawColor(50, 50, 50, 100)
+			surface.DrawRect(0, 0, w, h)
+			local msg = k[1]		
+			draw.SimpleText(msg, "JMod-Display", 5, 3, Color(255,255,255,255), TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP)
+		end
+		function Butt:DoClick()
+			LocalPlayer():ConCommand("say supply radio: " .. k[1] .. "")
+			motherFrame:Close()
+		end
+	end
 end)
 local function GetItemInSlot(armorTable,slot)
 	if not(armorTable and armorTable.items)then return nil end
