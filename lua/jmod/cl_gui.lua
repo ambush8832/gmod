@@ -896,8 +896,8 @@ net.Receive("JMod_EZradio",function()
 	end
 	--Help text here \/ -----------
 	helpLabel = vgui.Create( "DLabel", motherFrame )
-	helpLabel:SetPos( 550, 40 )
-	helpLabel:SetText("Help - \n\n Packages: Smoke signal not necessary, \n but can help for accuracy. \n\n Strikes: Plane will circle area until \n smoke signal or coordinates are specified.")
+	helpLabel:SetPos( 535, 40 )
+	helpLabel:SetText("Help - \n\n Packages: \n Call in using list or say, radio: [package] package \n\n Strikes: \n Strike craft will circle until red smoke signal or \n laser designation is detected. \n Chat command can also be typed manually \n with X Y coordinates for a precision strike. \n Say, radio: [strike] strike [X, Y coordinantes]")
 	helpLabel:SizeToContents()
 end)
 local function GetItemInSlot(armorTable,slot)
