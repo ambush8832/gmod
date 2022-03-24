@@ -1,10 +1,10 @@
 
 function EFFECT:Init(data)
 	
-	local vOffset=data:GetOrigin()
+	local vOffset = data:GetOrigin()
 	
-	local Scayul=data:GetScale()
-	local Dir=data:GetNormal()
+	local Scayul = data:GetScale()
+	local Dir = data:GetNormal()
 	
 	if(self:WaterLevel()==3)then
 		local Splach=EffectData()
@@ -15,12 +15,13 @@ function EFFECT:Init(data)
 		return
 	end
 
-	local emitter=ParticleEmitter(vOffset)
+	local emitter = ParticleEmitter(vOffset)
 	if(emitter)then
+
+		local Pos=(data:GetOrigin())
+
 		for i=0, 30*Scayul^0.5 do
 
-			local Pos=(data:GetOrigin())
-		
 			local particle=emitter:Add("sprites/mat_jack_nicespark",Pos)
 
 			if(particle)then
@@ -52,10 +53,10 @@ function EFFECT:Init(data)
 			end
 		end
 		-------------------Here's the problem
-		local Scl = self:GetScale()
-		for i=1,120*Scl do
-			local ParticlePos=Pos+Dir*math.random(-10,100)
-			local particle=emitter:Add("particle/smokestack",ParticlePos)
+		local Scl = Scayul
+		for i = 1, 120*Scl do
+			local ParticlePos = Pos + Dir*math.random(-10,100)
+			local particle = emitter:Add("particle/smokestack", ParticlePos)
 			particle:SetVelocity(Dir*math.Rand(2,6)*i*Scl+VectorRand()*math.random(10,20))
 			particle:SetAirResistance(150)
 			particle:SetGravity(Vector(0,0,math.random(5,50))+JMod.Wind*100*math.Rand(0,1))
