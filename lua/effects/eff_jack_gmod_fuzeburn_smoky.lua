@@ -51,6 +51,7 @@ function EFFECT:Init(data)
 
 			end
 		end
+		-------------------Here's the problem
 		local Scl = self:GetScale()
 		for i=1,120*Scl do
 			local ParticlePos=Pos+Dir*math.random(-10,100)
