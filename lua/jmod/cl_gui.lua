@@ -890,7 +890,7 @@ net.Receive("JMod_EZradio",function()
 			draw.SimpleText(msg .. " strike", "DermaDefault", 5, 3, Color(255,255,255,255), TEXT_ALIGN_LEFT, TEXT_ALIGN_TOP)
 		end
 		function Butt:DoClick()
-			LocalPlayer():ConCommand("say supply radio: " .. k[1] .. " strike")
+			LocalPlayer():ConCommand("say radio: " .. k[1] .. " strike")
 			motherFrame:Close()
 		end
 	end

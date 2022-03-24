@@ -27,7 +27,8 @@ local function CreateRadioStation(teamID)
 		notified=false,
 		restrictedPackageStock={},
 		restrictedPackageDelivering=nil,
-		restrictedPackageDeliveryTime=0
+		restrictedPackageDeliveryTime=0,
+		carryingOutStrike = false
 	}
 end
 
