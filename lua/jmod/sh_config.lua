@@ -651,7 +651,7 @@ function JMod.InitGlobalConfig(forceNew)
 				"ent_jack_gmod_ezaidradio",		
 				{	
 					[JMod.EZ_RESOURCE_TYPES.BASICPARTS]=75,
-					[Jmod.EZ_RESOURCE_TYPES.STEEL]=25,
+					--[Jmod.EZ_RESOURCE_TYPES.STEEL]=25,
 					[JMod.EZ_RESOURCE_TYPES.POWER]=100,
 					[JMod.EZ_RESOURCE_TYPES.PRECISIONPARTS]=25	
 				},
@@ -696,8 +696,8 @@ function JMod.InitGlobalConfig(forceNew)
 				"ent_jack_gmod_ezworkbench",		
 				{	
 					[JMod.EZ_RESOURCE_TYPES.BASICPARTS]=200,
-					[Jmod.EZ_RESOURCE_TYPES.STEEL]=250,
-					[Jmod.EZ_RESOURCE_TYPES.PLASTIC]=50,
+					--[Jmod.EZ_RESOURCE_TYPES.STEEL]=250,
+					--[Jmod.EZ_RESOURCE_TYPES.PLASTIC]=50,
 					[JMod.EZ_RESOURCE_TYPES.PRECISIONPARTS]=100,
 					[JMod.EZ_RESOURCE_TYPES.POWER]=100,
 					[JMod.EZ_RESOURCE_TYPES.GAS]=100
