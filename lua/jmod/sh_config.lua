@@ -462,34 +462,28 @@ function JMod.InitGlobalConfig(forceNew)
                 
 			},
 			AvailableAirstrikes = {
-				["small bomb"] = {
-					"An airstrike of multiple small 'iron' bombs.",
-					{"ent_jack_gmod_ezsmallbomb", 4}
-				},
-				["medium bomb"] = {
-					"An airstrike of multiple 'iron' bombs.",
-					{"ent_jack_gmod_ezbomb", 2}
-				},
-				["big bomb"] = {
-					"An airstrike of a single large 'iron' bomb.",
-					{"ent_jack_gmod_ezbigbomb", 1}
-				},
-				["cluster bomb"] = {
-					"Drops cluster bomb on target", 
-					{"ent_jack_gmod_ezclusterbomb", 1}
-				},
-				["incendiary bomb"] = {
-					"Drops incendiary bombs on target", 
-					{"ent_jack_gmod_ezincendiarybomb", 2}
-				},
-				["thermobaric bomb"] = {
-					"Drops thermobaric bomb on target", 
-					{"ent_jack_gmod_ezthermobaricbomb", 1}
-				},
-				["nano nuke"] = {
-					"Drops nano nuke on target",
-					{"ent_jack_gmod_eznuke_small",1}
-				}
+				["carpet bomb"]={
+					"Several small 'iron' bombs in carpet fashion"
+					craftType = 2, -- 1 = jet, 2 = bomber
+					craftSpeed = 2000,
+					acceptableTargetTypes={"laser", "smoke", "coords"},
+					dropFunc = function(targetPos, flyVector, caller)
+						local BombVel = flyVector*1000
+						for i = -4, 4 do
+							timer.Simple(i/2+5, function()
+								local DropPos = targetPos + flyVector*i*400 - flyVector*3000
+								local Bom = ents.Create("ent_jack_gmod_ezsmallbomb")
+								JMod.Owner(Bom, caller)
+								Bom:SetPos(DropPos)
+								Bom:Spawn()
+								Bom:Activate()
+								Bom:SetState(1)
+								Bom:GetPhysicsObject():SetVelocity(BombVel)
+								Bom:SetCollisionGroup(2)
+							end)
+						end
+					end
+  				}
 			},
 
 			RestrictedPackages={"antimatter","fissile material"},
