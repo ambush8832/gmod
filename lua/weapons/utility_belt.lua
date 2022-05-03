@@ -2,7 +2,7 @@
 
 	SWEP.PrintName	= "Utility Belt"
 
-	SWEP.Author		= "8Z"
+	SWEP.Author		= "8Z, Keksquad, AdventureBoots"
 	SWEP.Purpose	= "Hang some grenades or other items on yourself"
 	SWEP.Instructions = "Left Click: Take out active item\nE + Left click: Take out & prime\nRight click: Pick up item\nReload: cycle slots"
 
@@ -39,8 +39,8 @@
 	-- in Listen/Dedicated servers, these are clientside
 	-- Why? Because predictable hooks don't like to run on client in SP for some reason
 	-- and syncing is a headache
-	--SWEP.ActiveSlot = 0
-	--SWEP.NextSlot = 0
+	SWEP.ActiveSlot = 1
+	SWEP.NextSlot = 2
 
 	local function lookup(slot)
 		local tbl = UTILITY_BELT_ITEMS[slot.class]
@@ -71,6 +71,7 @@
 	end
 
 	function SWEP:Initialize()
+		--self.Owner = self:GetOwner()
 		self:SetHoldType("normal")
 		self.Owner.BeltSlots = {}
 		self.ActiveSlot = 0
@@ -117,8 +118,10 @@
 						net.Broadcast()
 						self:FindSlots(false)
 					end
-					if SERVER then self.Owner:EmitSound("items/ammo_pickup.wav") end
-					SafeRemoveEntity(ent)
+					if SERVER then 
+						self.Owner:EmitSound("items/ammo_pickup.wav")
+						SafeRemoveEntity(ent)
+					end
 					break
 				end
 			end
@@ -128,7 +131,7 @@
 	local pressed = false
 	function SWEP:Think()
 		
-		if not pressed and self.Owner:KeyDown(IN_RELOAD) then
+		--[[if not pressed and self.Owner:KeyDown(IN_RELOAD) then
 			pressed = true
 			if (SERVER and game.SinglePlayer()) or (CLIENT and not game.SinglePlayer()) then
 				self:FindSlots(true)
@@ -136,7 +139,7 @@
 			if CLIENT then surface.PlaySound("ui/buttonrollover.wav") end
 		elseif pressed and not self.Owner:KeyDown(IN_RELOAD) then
 			pressed = false
-		end
+		end]]--
 	end
 
 	UTILITY_BELT_OFFSET = {
@@ -491,12 +494,12 @@
 		self.ActiveSlot = 0
 		self.NextSlot = 0
 		
-		--print("looking for ActiveSlot")
+		print("looking for ActiveSlot")
 		for i = (increment and 1 or 0), 4 do
 			local slot = (cur + i) % 4 + 1
-			--print("i = " .. i .. " (" .. slot .. ")")
+			print("i = " .. i .. " (" .. slot .. ")")
 			if self.Owner.BeltSlots[slot] then
-				--print("found")
+				print("found")
 				self.ActiveSlot = slot
 				break
 			end
@@ -504,12 +507,12 @@
 		
 		if self.ActiveSlot == 0 then return end
 		cur = self.ActiveSlot - 1
-		--print("looking for NextSlot")
+		print("looking for NextSlot")
 		for i = 1, 3 do
 			local slot = (cur + i) % 4 + 1
-			--print("i = " .. i .. " (" .. slot .. ")")
+			print("i = " .. i .. " (" .. slot .. ")")
 			if self.Owner.BeltSlots[slot] then
-				--print("found")
+				print("found")
 				self.NextSlot = slot
 				break
 			end
@@ -529,10 +532,32 @@
 		local wep = ply:GetWeapon("utility_belt")
 		if not IsValid(wep) or not wep.Owner.BeltSlots or table.Count(wep.Owner.BeltSlots) <= 0 or wep.Owner.BeltSlots[wep.ActiveSlot] == nil then return end
 
-		if key == KEY_G and ply:KeyDown(IN_USE) then
+		--[[if key == KEY_G and ply:KeyDown(IN_USE) then
 			if (SERVER and game.SinglePlayer()) or (CLIENT and not game.SinglePlayer()) then
 				wep:FindSlots(true)
+				--print("Finding slots")
 			end
+			if CLIENT then surface.PlaySound("ui/buttonrollover.wav") end
+			if SERVER and game.SinglePlayer() then
+				ply:SendLua('surface.PlaySound("ui/buttonrollover.wav")')
+			end
+		elseif key == KEY_G and not ply:KeyDown(IN_USE) then
+			if game.SinglePlayer() then
+				wep:ReleaseItem(wep.ActiveSlot, not ply:KeyDown(IN_WALK), not ply:KeyDown(IN_WALK))
+				wep:FindSlots(false)
+			elseif CLIENT then
+				net.Start("utility_belt")
+					net.WriteUInt(wep.ActiveSlot, 4)
+				net.SendToServer()
+				timer.Simple(0, function() wep:FindSlots(false) end)
+			end
+		end]]--
+		if key == KEY_G and ply:KeyDown(IN_USE) then
+			if (SERVER and game.SinglePlayer()) or (CLIENT and not game.SinglePlayer()) then
+				--wep:FindSlots(true)
+				ply:RunConsoleCommand("kek_utility_belt_release", ply)
+			end
+			print("Finding slots")
 			if CLIENT then surface.PlaySound("ui/buttonrollover.wav") end
 			if SERVER and game.SinglePlayer() then
 				ply:SendLua('surface.PlaySound("ui/buttonrollover.wav")')
@@ -560,6 +585,28 @@
 	end)
 
 	if SERVER then
+
+		concommand.Add("kek_utility_belt_check", function (ply)
+			local wep = ply:GetWeapon("utility_belt")
+			for i = 1, 4 do
+				if IsValid(wep.Owner.BeltSlots[i].class) then
+					print(wep.Owner.BeltSlots[i].class)
+				end
+			end
+		end, true)
+		concommand.Add("kek_utility_belt_drop", function (ply)
+			local wep = ply:GetWeapon("utility_belt")
+			ply:DropWeapon(wep)
+		end, true)
+		concommand.Add("kek_utility_belt_release", function (ply)
+			local wep = ply:GetWeapon("utility_belt")
+			wep:ReleaseItem(wep.ActiveSlot, true, true)
+		--end, true)
+		--concommand.Add("kek_utility_belt_find_slot", function (ply)
+		--	local wep = ply:GetWeapon("utility_belt")
+			wep:FindSlots(true)
+		end, true)
+
 		-- SERVER -> CLIENT: Updates slot information (only used in singleplayer)
 		-- CLIENT -> SERVER: Release item of specified index
 		util.AddNetworkString("utility_belt")
@@ -765,7 +812,8 @@
 					primable = primable
 				}
 			end
-			if not game.SinglePlayer() and ply:GetWeapon("utility_belt") then ply:GetWeapon("utility_belt"):FindSlots(false) end
+			local wep = ply:GetWeapon("utility_belt")
+			if not game.SinglePlayer() and IsValid(wep) then wep:FindSlots(false) end
 		end)
 		
 		net.Receive("utility_belt_slot", function()
@@ -784,63 +832,63 @@
 		local ubposy = CreateClientConVar("jmod_cl_utilitybelt_pos_y", 250, FCVAR_USERINFO, "Adjusts the Utility Belt HUD's Y coordinate relative to the player's screen.", nil, nil)
 		
 	hook.Add("HUDPaint", "utility_belt_quickhud", function()
-	local xinfo = LocalPlayer():GetInfo("jmod_cl_utilitybelt_pos_x")
-	local yinfo = LocalPlayer():GetInfo("jmod_cl_utilitybelt_pos_y")
-    local wep = LocalPlayer():GetWeapon("utility_belt")
-    if not LocalPlayer():Alive() or not IsValid(wep) then return end
-    local x = ScrW() * xinfo
-    local y = ScrH() - yinfo
-    local scale = 1
-    local font = "DermaDefault"
-    surface.SetDrawColor(255, 255, 255, 255)
+		local xinfo = LocalPlayer():GetInfo("jmod_cl_utilitybelt_pos_x")
+		local yinfo = LocalPlayer():GetInfo("jmod_cl_utilitybelt_pos_y")
+		local wep = LocalPlayer():GetWeapon("utility_belt")
+		if not LocalPlayer():Alive() or not IsValid(wep) then return end
+		local x = ScrW() * xinfo
+		local y = ScrH() - yinfo
+		local scale = 1
+		local font = "DermaDefault"
+		surface.SetDrawColor(255, 255, 255, 255)
 
-    if wep.ActiveSlot ~= 0 and LocalPlayer().BeltSlots[wep.ActiveSlot] ~= nil then
-        local path = "entities/" .. LocalPlayer().BeltSlots[wep.ActiveSlot].class
+		if wep.ActiveSlot ~= 0 and LocalPlayer().BeltSlots[wep.ActiveSlot] ~= nil then
+			local path = "entities/" .. LocalPlayer().BeltSlots[wep.ActiveSlot].class
 
-        if not curmat or curmat:GetName() ~= path then
-            curmat = Material(path .. ".png")
-        end
+			if not curmat or curmat:GetName() ~= path then
+				curmat = Material(path .. ".png")
+			end
 
-        surface.SetMaterial(curmat)
-        surface.DrawTexturedRect(x + 3, y + 3, (128 - 6) * scale, (128 - 6) * scale)
-    else
-        draw.SimpleTextOutlined("N/A", font, x + 64 * scale, y + 64 * scale, Color(255, 255, 255), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 1, Color(50, 50, 50))
-    end
-    surface.SetMaterial(matOverlay_Normal)
-    surface.DrawTexturedRect(x, y, 128 * scale, 128 * scale)
-    draw.SimpleTextOutlined("ACTIVE QUICKBELT", font, x + 64 * scale, y + 2, Color(255, 255, 255), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 1, Color(50, 50, 50))
-    draw.SimpleTextOutlined(table.Count(LocalPlayer().BeltSlots) .. " / 4 ITEMS", font, x + 64 * scale, y + (128 - 16) * scale, Color(255, 255, 255), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 1, Color(50, 50, 50))
-    local x2 = x + 128 * scale
-    local y2 = y + 62 * scale
+			surface.SetMaterial(curmat)
+			surface.DrawTexturedRect(x + 3, y + 3, (128 - 6) * scale, (128 - 6) * scale)
+		else
+			draw.SimpleTextOutlined("N/A", font, x + 64 * scale, y + 64 * scale, Color(255, 255, 255), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 1, Color(50, 50, 50))
+		end
+		surface.SetMaterial(matOverlay_Normal)
+		surface.DrawTexturedRect(x, y, 128 * scale, 128 * scale)
+		draw.SimpleTextOutlined("ACTIVE QUICKBELT", font, x + 64 * scale, y + 2, Color(255, 255, 255), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 1, Color(50, 50, 50))
+		draw.SimpleTextOutlined(table.Count(LocalPlayer().BeltSlots) .. " / 4 ITEMS", font, x + 64 * scale, y + (128 - 16) * scale, Color(255, 255, 255), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 1, Color(50, 50, 50))
+		local x2 = x + 128 * scale
+		local y2 = y + 62 * scale
 
-    if wep.NextSlot ~= 0 and LocalPlayer().BeltSlots[wep.NextSlot] ~= nil then
-        local path = "entities/" .. LocalPlayer().BeltSlots[wep.NextSlot].class
+		if wep.NextSlot ~= 0 and LocalPlayer().BeltSlots[wep.NextSlot] ~= nil then
+			local path = "entities/" .. LocalPlayer().BeltSlots[wep.NextSlot].class
 
-        if not nextmat or nextmat:GetName() ~= path then
-            nextmat = Material(path .. ".png")
-        end
+			if not nextmat or nextmat:GetName() ~= path then
+				nextmat = Material(path .. ".png")
+			end
 
-        surface.SetMaterial(nextmat)
-        surface.DrawTexturedRect(x2 + 1.5, y2 + 1.5, (64 - 3) * scale, (64 - 3) * scale)
-    else
-        draw.SimpleTextOutlined("N/A", font, x2 + 32 * scale, y2 + 32 * scale, Color(255, 255, 255), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 1, Color(50, 50, 50))
-    end
+			surface.SetMaterial(nextmat)
+			surface.DrawTexturedRect(x2 + 1.5, y2 + 1.5, (64 - 3) * scale, (64 - 3) * scale)
+		else
+			draw.SimpleTextOutlined("N/A", font, x2 + 32 * scale, y2 + 32 * scale, Color(255, 255, 255), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 1, Color(50, 50, 50))
+		end
 
-    surface.SetMaterial(matOverlay_Hovered)
-    surface.DrawTexturedRect(x2, y2, 64 * scale, 64 * scale)
-    draw.SimpleTextOutlined("NEXT", font, x2 + 32 * scale, y2 + 2, Color(255, 255, 255), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 1, Color(50, 50, 50))
-    local det = LocalPlayer():GetWeapon("utility_belt_detonator")
+		surface.SetMaterial(matOverlay_Hovered)
+		surface.DrawTexturedRect(x2, y2, 64 * scale, 64 * scale)
+		draw.SimpleTextOutlined("NEXT", font, x2 + 32 * scale, y2 + 2, Color(255, 255, 255), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 1, Color(50, 50, 50))
+		local det = LocalPlayer():GetWeapon("utility_belt_detonator")
 
-    if IsValid(det) then
-        local x3 = x + (128 - 4) * scale
-        local y3 = y + 4 * scale
-        local s = det.DeadManSwitch
-        surface.SetDrawColor(255, 255, 255, s and 255 or 100)
-        surface.SetMaterial(mat_Detonator)
-        surface.DrawTexturedRect(x3, y3, 48 * scale, 48 * scale)
-        draw.SimpleTextOutlined("DMS " .. (s and "ON" or "OFF"), font, x3 + 24 * scale, y3 + 36 * scale, Color(255, 255, 255, s and 255 or 100), TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER, 1, Color(50, 50, 50, s and 255 or 100))
-    end
-end)
+		if IsValid(det) then
+			local x3 = x + (128 - 4) * scale
+			local y3 = y + 4 * scale
+			local s = det.DeadManSwitch
+			surface.SetDrawColor(255, 255, 255, s and 255 or 100)
+			surface.SetMaterial(mat_Detonator)
+			surface.DrawTexturedRect(x3, y3, 48 * scale, 48 * scale)
+			draw.SimpleTextOutlined("DMS " .. (s and "ON" or "OFF"), font, x3 + 24 * scale, y3 + 36 * scale, Color(255, 255, 255, s and 255 or 100), TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER, 1, Color(50, 50, 50, s and 255 or 100))
+		end
+	end)
 		-- Draw models on player
 		hook.Add("PostPlayerDraw", "utility_belt_render", function(ply)
 			
