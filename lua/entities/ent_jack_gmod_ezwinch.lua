@@ -19,13 +19,12 @@ ENT.StuckStick = nil
 ENT.Winch = nil
 ENT.Rope = nil
 ENT.WinchHook = nil
+ENT.HookedTo = nil
 --
 local STATE_DETATCHED,STATE_ATTATCHED,STATE_HOOKING,STATE_WINCHING = 0,1,2,3
 
 function ENT:SetupDataTables()
 	self:NetworkVar("Int", 0, "State")
-	-- This is supposed to be for controlling the length
-    self:NetworkVar("Int", 0, "Length")
 end
 if (SERVER) then
 	function ENT:SpawnFunction(ply, tr)
@@ -153,6 +152,7 @@ if (SERVER) then
 	end
 
 	function ENT:StartHooking(Dude)
+		local TopOfWinch = self:GetAngles():Up() * 10
 		-- Get rid of the old hook
 		if(self.WinchHook)then
 			SafeRemoveEntity(self.WinchHook)
@@ -160,25 +160,24 @@ if (SERVER) then
 		-- Create a new hook
 		local Hooky = ents.Create("ent_jack_gmod_ezwinchhook")
 		Hooky:SetAngles(Angle(0, 0, 0))
-		Hooky:SetPos(self:GetPos() + Vector(0, 0, 2))
+		Hooky:SetPos(self:GetPos() + TopOfWinch * 6)
 		JMod.Owner(Hooky, Dude)
 		Hooky.WinchSpool = self
 		Hooky:Spawn()
 		Hooky:Activate()
 		Dude:PickupObject(Hooky)
-		JMod.Hint(Dude, "sticky")
 		self.WinchHook = Hooky
 
-		local TopOfWinch = self:GetAngles():Up() * 10
 		local TopOfHook = self.WinchHook:GetAngles():Up() * 10
-		local Constraint, Rope = constraint.Rope(self, self.WinchHook, 0, 0, self:WorldToLocal(self:GetPos() + TopOfWinch), self.WinchHook:WorldToLocal(self.WinchHook:GetPos() + TopOfWinch), self.MaxLength, 5, self.WinchStrength, 2, "cable/cable2", false)
+		local Constraint, Rope = constraint.Rope(self, self.WinchHook, 0, 0, self:WorldToLocal(self:GetPos() + TopOfWinch), self.WinchHook:WorldToLocal(self.WinchHook:GetPos() + TopOfHook), self.MaxLength, 0, 1000, 2, "cable/cable2", true)
 		self.Winch = Constraint
 		self.Rope = Rope
 		self.CurrentLength = self.MaxLength
-		-- If succesful we can set teh state to hooking
+		-- If succesful we can set the state to hooking
 		if(self.Winch)then
 			self:SetState(STATE_HOOKING)
 		else
+			print("Hook rope failed")
 			return false
 		end
 	end
@@ -187,27 +186,28 @@ if (SERVER) then
 		local State = self:GetState()
 		local Target = ColData.HitEntity
 		if not(State == STATE_HOOKING)then print(State) return false end
-		if not(self.WinchHook)then print(self.WinchHook) return false end
-		if not(IsValid(Target) or (Target:IsWorld())  or (Target == self.ClassName))then 
+		if not((Target == self.ClassName) and (Target:IsNPC()) and (Target:IsPlayer())) and (IsValid(Target:GetPhysicsObject()))then 
 			print("Invalid Hit: "..tostring(ColData.HitEntity)) 
 			return false 
 		end
-		if (ColData.HitPos:Distance(self:GetPos()) > self.MaxLength)then return false end
+		if (ColData.HitPos:Distance(self:GetPos()) > self.MaxLength)then print("To far away") return false end
 
 		timer.Simple(0.1, function()
 			local TopOfWinch = self:GetAngles():Up() * 10
-			local Constraint, Rope = constraint.Elastic(self, Target, 0, 0, self:WorldToLocal(self:GetPos() + TopOfWinch), ColData.HitEntity:WorldToLocal(ColData.HitPos), 100, 100, 100, "cable/cable2", 2, true)
-			if not(Constraint)then print("Failed Rope") return false end
-			self.CurrentLength = ColData.HitPos:Distance(self:GetPos())
+			local Constraint, Rope = constraint.Elastic(self, Target, 0, 0, self:WorldToLocal(self:GetPos() + TopOfWinch), ColData.HitEntity:WorldToLocal(ColData.HitPos), 1000, 50, 1, "cable/cable2", 2, true)
+			if not(Constraint)then print("Winch Failed") return false end
+			self.CurrentLength = ColData.HitPos:Distance(self:GetPos() + TopOfWinch)
 			self.Winch = Constraint
 			self.Rope = Rope
+			self.HookedTo = Target
 			--print("Constraint is new winch")
 			if(self.WinchHook)then
+				print("Removing: "..tostring(self.WinchHook))
 				self.WinchHook:Remove()
 			end
 		end)
 		self:StartWinching()
-		--print("State: Winching")
+		print("State: Winching")
 		return true
 	end
 
@@ -217,7 +217,7 @@ if (SERVER) then
 
 	function ENT:Ratchet(value)
 		local targetValue = math.ceil(self.CurrentLength + value)
-		self.CurrentLength = math.Clamp(targetValue, 1, self.MaxLength)
+		self.CurrentLength = math.Clamp(targetValue, 5, self.MaxLength)
 		if IsValid(self.Winch) then 
 			self.Winch:Fire("SetSpringLength", self.CurrentLength, 0) 
 			self.Rope:Fire("SetLength", self.CurrentLength, 0)
@@ -241,19 +241,26 @@ if (SERVER) then
     end
     function ENT:Think()
 		-- These were supposed to be safety checks, but I don't know if I need them here.
-		--[[local State = self:GetState()
-		if(State == STATE_DETATCHED)then return end
-        if(self.Winch == nil)then
-            if(self.WinchHook)then
-                SafeRemoveEntityDelayed(self.WinchHook, 1)
-            end
-            self:SetState(STATE_ATTATCHED)
-        elseif(self.WinchHook == nil) and (State ~= STATE_WINCHING or STATE_HOOKING)then
-            if(self.Winch)then
-                self.Winch = nil
-            end
-            self:SetState(STATE_ATTATCHED)
-        end]]--
+		local State = self:GetState()
+		if(State == STATE_DETATCHED)then
+			return
+		elseif(State == STATE_ATTATCHED)then
+			if not(StuckStick)then
+				self:SetState(STATE_DETATCHED)
+			end
+		--[[elseif(State == STATE_HOOKING)then
+			if not(self.WinchHook) then return false end
+			if not(self.Winch)then 
+				SafeRemoveEntity(self.WinchHook)
+				self:SetState(STATE_ATTATCHED)
+				return false
+			end]]--
+		elseif(State == STATE_WINCHING)then
+			if(self:GetPos():Distance(self.HookedTo:GetPos()) > self.MaxLength + 20)then
+				self.Winch = nil
+			end
+			if not(Winch)then self:SetState(STATE_ATTATCHED) return false end
+		end
         self:NextThink(CurTime() + 0.1)
     end
 elseif (CLIENT) then
