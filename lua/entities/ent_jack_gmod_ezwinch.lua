@@ -18,6 +18,7 @@ ENT.WinchStrength = 1000
 ENT.StuckStick = nil
 ENT.Winch = nil
 ENT.Rope = nil
+ENT.LengthConstraint = nil
 ENT.WinchHook = nil
 ENT.HookedTo = nil
 --
@@ -96,7 +97,7 @@ if (SERVER) then
 					end
                 end
             elseif (State == STATE_WINCHING)then
-			if (self.Winch == nil)then SetState(STATE_ATTATCHED) return end
+				if (self.Winch == nil)then SetState(STATE_ATTATCHED) return end
 				if (Alt) then
 					self:Ratchet(-5)
 					local RatchetSound = CreateSound(self, "snds_jack_gmod/slow_ratchet.wav", 60, 100)
@@ -104,10 +105,12 @@ if (SERVER) then
 				else
 					self:Ratchet(5)
 					self:EmitSound("snd_jack_metallicclick.wav", 60, 100)
-                end
+				end
 			else
-                Dude:PickupObject(self)
+            	Dude:PickupObject(self)
 			end
+			
+			print(State)
 		else
 			if ((self:IsPlayerHolding()) and (self.NextStick < Time)) then
 				local Tr=util.QuickTrace(Dude:GetShootPos(), Dude:GetAimVector()*80, {self, Dude})
@@ -176,8 +179,9 @@ if (SERVER) then
 		-- If succesful we can set the state to hooking
 		if(self.Winch)then
 			self:SetState(STATE_HOOKING)
+			print("Winching now")
 		else
-			print("Hook rope failed")
+			print("Winch rope failed")
 			return false
 		end
 	end
@@ -239,7 +243,7 @@ if (SERVER) then
     		SafeRemoveEntity(self.WinchHook)
 		end
     end
-    function ENT:Think()
+	--[[function ENT:Think()
 		-- These were supposed to be safety checks, but I don't know if I need them here.
 		local State = self:GetState()
 		if(State == STATE_DETATCHED)then
@@ -248,20 +252,15 @@ if (SERVER) then
 			if not(StuckStick)then
 				self:SetState(STATE_DETATCHED)
 			end
-		--[[elseif(State == STATE_HOOKING)then
+		elseif(State == STATE_HOOKING)then
 			if not(self.WinchHook) then return false end
 			if not(self.Winch)then 
 				SafeRemoveEntity(self.WinchHook)
 				self:SetState(STATE_ATTATCHED)
 				return false
-			end]]--
-		elseif(State == STATE_WINCHING)then
-			if(self:GetPos():Distance(self.HookedTo:GetPos()) > self.MaxLength + 20)then
-				self.Winch = nil
 			end
-			if not(Winch)then self:SetState(STATE_ATTATCHED) return false end
 		end
         self:NextThink(CurTime() + 0.1)
-    end
+    end]]--
 elseif (CLIENT) then
 end
